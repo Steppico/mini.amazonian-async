@@ -1,4 +1,6 @@
 const fs = require("fs");
+const fsPromises = require("fs").promises;
+
 const { readFile, produceResult } = require("./helpers");
 
 class ReviewBuilder {
@@ -28,11 +30,34 @@ class ReviewBuilder {
   }
 
   buildReviewsPromises() {
-    // FIXME
+    return new Promise((resolve, reject) => {
+      Promise.all([
+        fsPromises.readFile("./data/products.json", "utf8"),
+        fsPromises.readFile("./data/reviews.json", "utf8"),
+        fsPromises.readFile("./data/users.json", "utf8"),
+      ])
+        .then((results) => {
+          const products = JSON.parse(results[0]);
+          const reviews = JSON.parse(results[1]);
+          const users = JSON.parse(results[2]);
+          resolve(produceResult({ products, reviews, users }));
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 
   async buildReviewsAsyncAwait() {
-    // FIXME
+    const results = await Promise.all([
+      fsPromises.readFile("./data/products.json", "utf8"),
+      fsPromises.readFile("./data/reviews.json", "utf8"),
+      fsPromises.readFile("./data/users.json", "utf8"),
+    ]);
+    const products = JSON.parse(results[0]);
+    const reviews = JSON.parse(results[1]);
+    const users = JSON.parse(results[2]);
+    return produceResult({ products, reviews, users });
   }
 }
 
